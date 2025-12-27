@@ -1,6 +1,6 @@
 import { dir } from "console";
 
-export type name = "pawn"|"rook"|"bishop"|"queen"|"king"|"knight";
+export type name = "pawn" | "rook" | "bishop" | "queen" | "king" | "knight";
 
 export type Move = { x: number, y: number };
 
@@ -10,9 +10,9 @@ export abstract class Piece {
     x: number;
     y: number;
     color: "white" | "black";
-    typePiece : name ;
+    typePiece: name;
 
-    constructor(x: number, y: number, color: "white" | "black", typePiece : "pawn"|"rook"|"bishop"|"queen"|"king"|"knight") {
+    constructor(x: number, y: number, color: "white" | "black", typePiece: "pawn" | "rook" | "bishop" | "queen" | "king" | "knight") {
         this.x = x;
         this.y = y;
         this.color = color;
@@ -31,27 +31,30 @@ export class Pawn extends Piece {
     getValidMoves(board: Board): Move[] {
 
         const moves: Move[] = [];
-        
-        const direction : number = this.color=="white" ? -1 : 1;
+
+        const direction: number = this.color == "white" ? -1 : 1;
 
 
-        if(isIn(this.x+direction,this.y) && board[this.x+direction][this.y]==null){
-            moves.push({ x:this.x+direction,y:this.y })
-
-            if(isIn(this.x+direction,this.y+1) && board[this.x+direction][this.y+1]?.color!==this.color){
-                moves.push({ x:this.x+direction,y:this.y+1 })
-            }
-
-            if(isIn(this.x+direction,this.y-1) && board[this.x+direction][this.y-1]?.color!==this.color){
-                moves.push({ x:this.x+direction,y:this.y-1 })
-            }
-        }
-
-        if(!this.moved && board[this.x+(direction*2)][this.y]==null){
-            moves.push({ x:this.x+(direction*2),y:this.y })
-        }
+        if (isIn(this.x + direction, this.y) && board[this.x + direction][this.y] == null) {
+        moves.push({ x: this.x + direction, y: this.y });
+    }
 
     
+    if (!this.moved && board[this.x + direction][this.y] == null && board[this.x + (direction * 2)][this.y] == null) {
+        moves.push({ x: this.x + (direction * 2), y: this.y });
+    }
+
+    
+    if (isIn(this.x + direction, this.y + 1) && board[this.x + direction][this.y + 1]?.color && board[this.x + direction][this.y + 1]?.color !== this.color) {
+        moves.push({ x: this.x + direction, y: this.y + 1 });
+    }
+
+    
+    if (isIn(this.x + direction, this.y - 1) && board[this.x + direction][this.y - 1]?.color && board[this.x + direction][this.y - 1]?.color !== this.color) {
+        moves.push({ x: this.x + direction, y: this.y - 1 });
+    }
+
+
         return moves;
     }
 
@@ -107,7 +110,7 @@ export class Queen extends Piece {
 
 export class King extends Piece {
 
-    moved : boolean = false;
+    moved: boolean = false;
 
     getValidMoves(board: Board): Move[] {
 

@@ -58,9 +58,7 @@ function App() {
     return board;
   }
 
-  useEffect(()=>{
-    console.log(board)
-  },[])
+
 
   function moving(from:Move, to:Move){
     const newBoard : Board = board.map(row=>[...row]); 
@@ -84,6 +82,7 @@ function App() {
 
   const clicking=(x:number,y:number)=>{
     console.log(x,y)
+    console.log(board[x][y]?.getValidMoves(board))
 
     if(pieceSelected?.x==x && pieceSelected?.y==y){
       setPieceSelected(null);
@@ -113,9 +112,6 @@ function App() {
     reset();
   },[pieceMoveTo])
 
-  useEffect(()=>{
-    console.log(board)
-  },[board])
 
   useEffect(()=>{
     console.log(turn)
