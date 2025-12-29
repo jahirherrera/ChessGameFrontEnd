@@ -1,4 +1,3 @@
-import { dir } from "console";
 
 export type name = "pawn" | "rook" | "bishop" | "queen" | "king" | "knight";
 
@@ -133,6 +132,8 @@ export class King extends Piece {
             }
         }
 
+
+        // king goes 74 to 76 and the rook goes from 77 to 75
         // if(!this.isMoved){
         //     console.log("Here it goes the speacial movements with the rook")
         // }
