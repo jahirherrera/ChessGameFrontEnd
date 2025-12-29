@@ -20,7 +20,7 @@ export default function Square({ x, y, piece, clicking }: squareProps) {
         <> {/* 705548  DECFB1 */}
             <div className={`w-20 h-20 border border-black text-xl text-black flex justify-center items-center ${color}`} onClick={() => { clicking(x, y) }}
                 style={{ backgroundColor: color() }}>
-                <svg width="35" height="35" className={`hover:cursor-pointer m-1`}
+                <svg width="55" height="55" className={`hover:cursor-pointer m-1`}
                 style={{color : piece?.color}}>
                     <use href={`${sprite}#${piece?.typePiece}`} />
                 </svg>

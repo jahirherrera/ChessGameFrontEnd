@@ -36,23 +36,23 @@ export class Pawn extends Piece {
 
 
         if (isIn(this.x + direction, this.y) && board[this.x + direction][this.y] == null) {
-        moves.push({ x: this.x + direction, y: this.y });
-    }
+            moves.push({ x: this.x + direction, y: this.y });
+        }
 
-    
-    if (!this.moved && board[this.x + direction][this.y] == null && board[this.x + (direction * 2)][this.y] == null) {
-        moves.push({ x: this.x + (direction * 2), y: this.y });
-    }
 
-    
-    if (isIn(this.x + direction, this.y + 1) && board[this.x + direction][this.y + 1]?.color && board[this.x + direction][this.y + 1]?.color !== this.color) {
-        moves.push({ x: this.x + direction, y: this.y + 1 });
-    }
+        if (!this.moved && board[this.x + direction][this.y] == null && board[this.x + (direction * 2)][this.y] == null) {
+            moves.push({ x: this.x + (direction * 2), y: this.y });
+        }
 
-    
-    if (isIn(this.x + direction, this.y - 1) && board[this.x + direction][this.y - 1]?.color && board[this.x + direction][this.y - 1]?.color !== this.color) {
-        moves.push({ x: this.x + direction, y: this.y - 1 });
-    }
+
+        if (isIn(this.x + direction, this.y + 1) && board[this.x + direction][this.y + 1]?.color && board[this.x + direction][this.y + 1]?.color !== this.color) {
+            moves.push({ x: this.x + direction, y: this.y + 1 });
+        }
+
+
+        if (isIn(this.x + direction, this.y - 1) && board[this.x + direction][this.y - 1]?.color && board[this.x + direction][this.y - 1]?.color !== this.color) {
+            moves.push({ x: this.x + direction, y: this.y - 1 });
+        }
 
 
         return moves;
@@ -116,9 +116,14 @@ export class King extends Piece {
 
         const validMoves: Move[] = [];
 
-        const moves = [[this.x + 1, this.y], [this.x + 1, this.y + 1], [this.x, this.y + 1]
-            , [this.x - 1, this.y], [this.x - 1, this.y - 1], [this.x, this.y - 1]
-            , [this.x + 1, this.y + 1], [this.x - 1, this.y - 1]];
+        const moves = [[this.x - 1, this.y]//
+            , [this.x-1, this.y + 1]//
+            , [this.x, this.y + 1]//
+            , [this.x + 1, this.y+1]//
+            , [this.x + 1, this.y]//
+            , [this.x + 1, this.y - 1]//
+            , [this.x, this.y - 1]//
+            , [this.x - 1, this.y - 1]];
 
         for (const [x, y] of moves) {
             if (isIn(x, y)) {
