@@ -24,7 +24,6 @@ export default function Square({ x, y, piece, clicking }: squareProps) {
                 style={{color : piece?.color}}>
                     <use href={`${sprite}#${piece?.typePiece}`} />
                 </svg>
-                {x}{y}
             </div>
         </>
     )

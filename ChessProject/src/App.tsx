@@ -2,6 +2,15 @@ import './App.css'
 import { Piece, Pawn, Bishop, type Board, type Move, Rook, Knight, Queen, King } from './piece'
 import { useEffect, useState } from 'react';
 import Square from './square';
+//@ts-ignore
+import SockJS from 'sockjs-client/dist/sockjs'
+import { Client } from '@stomp/stompjs';
+
+type movesFromServer = {
+  from: Move,
+  to: Move,
+  color : string
+}
 
 
 
@@ -14,6 +23,46 @@ function App() {
 
   const [pieceSelected, setPieceSelected] = useState<Move | null>();
   const [pieceMoveTo, setPieceMoveTo] = useState<Move | null>();
+
+  const [pieceBlackKilled, setPieceBlackKilled] = useState<Piece[]>([]);
+  const [pieceWhiteKilled, setPieceWhiteKilled] = useState<Piece[]>([]);
+
+  const [stompClient, setStompClient] = useState<Client | null>(null);
+  const [MoveFromServer, setMoveFromServer] = useState<movesFromServer[] | null>(null); // array of moves received from server
+  const [newMove,setNewMove] = useState<movesFromServer | null>(null); // the new move to send to server
+
+  
+
+  useEffect(() => {
+
+    const socket = new SockJS('http://localhost:8080/ws');
+    const client = new Client({
+      webSocketFactory: () => socket,
+      onConnect: () => {
+        client.subscribe('/topic/server', move => {
+          const receivedMove = JSON.parse(move.body);
+          setMoveFromServer(prev =>[...(prev || []), receivedMove] );
+        });
+      },
+    });
+
+    client.activate();
+    setStompClient(client);
+
+    return () => {
+      client.deactivate();
+    };
+
+
+  }, []);
+
+
+  // Things to do
+  // 1. add the king special move with the rook (castling) 
+  // 2. Improve the UI 
+  // 3.  add Timer
+  // 4. add multiplayer (online) srprig boot JAVA backend with websockets
+  // optional -> add AI opponent
 
   function fillBoard(): Board {
 
@@ -117,6 +166,17 @@ function App() {
 
       piece.x = to.x;
       piece.y = to.y;
+
+      if (newBoard[to.x][to.y] != null) { // we check if there is a piece to capture
+        const capturedPiece = newBoard[to.x][to.y];
+        if (capturedPiece!.color === "white") {
+          setPieceWhiteKilled([...pieceWhiteKilled, capturedPiece!]);
+        } else {
+          setPieceBlackKilled([...pieceBlackKilled, capturedPiece!]);
+        }
+      }
+
+
       newBoard[to.x][to.y] = piece;
       newBoard[from.x][from.y] = null;
       if (piece instanceof Pawn || piece instanceof King) {
@@ -226,13 +286,33 @@ function App() {
 
 
   useEffect(() => {
-    if (pieceSelected && pieceMoveTo) movingProcess(pieceSelected, pieceMoveTo);
+    if (pieceSelected && pieceMoveTo){
+      const data : movesFromServer = {
+        from: pieceSelected,
+        to: pieceMoveTo,
+        color : turn
+      };
+      if (stompClient) {
+        console.log("it sneds the move to the server: ", data);
+            stompClient.publish({
+                destination: `/app/server`,
+                body: JSON.stringify(data),
+            });
+
+        }
+    };
     reset();
   }, [pieceMoveTo])
 
-  useEffect(() => {
-    console.log(board)
-  }, [board])
+  useEffect(()=>{
+    if(MoveFromServer && MoveFromServer.length >0){
+      console.log("Move received from server: ", MoveFromServer);
+      const latestMove = MoveFromServer[MoveFromServer.length -1];
+      movingProcess(latestMove.from,latestMove.to);
+    }
+  },[MoveFromServer])
+
+
 
 
   useEffect(() => {
@@ -240,7 +320,7 @@ function App() {
     console.log(turn)
   }, [turn])
 
-  const color = ():string => {
+  const color = (): string => {
     return turn === "white" ? "white" : "black";
   }
 
@@ -249,9 +329,12 @@ function App() {
       <div className='flex flex-col justify-around items-center  h-dvh w-dvw bg-[#5E7D7E]'>
         <h1 className='text-5xl '>Chess Game!</h1>
         <h1 className='text-5xl flex justify-center items-center '>Turn: <p className={`ml-2 mt-2 h-10 w-10 rounded-full`} style={{ backgroundColor: color() }}></p></h1>
-        <div className='flex justify-center items-center bg-[#A3C4C4] p-4 rounded-lg shadow-lg'>
-          <div>
-
+        <div className='flex justify-center items-center bg-[#A3C4C4] p-4 rounded-lg shadow-lg gap-4'>
+          <div className='flex flex-col min-w-15 justify-center items-center'>
+            Black
+            {pieceBlackKilled.map((piece, index) => (
+              <Square key={index} x={-1} y={-1} piece={piece} clicking={() => { }} />
+            ))}
           </div>
           <div className='grid grid-cols-8 gap-0 w-max'>
             {board.map((row, x) => (
@@ -260,7 +343,14 @@ function App() {
               )))
             ))}
           </div>
+          <div className='flex flex-col min-w-15 justify-center items-center'>
+            White
+            {pieceWhiteKilled.map((piece, index) => (
+              <Square key={index} x={-1} y={-1} piece={piece} clicking={() => { }} />
+            ))}
+          </div>
         </div>
+
         <h1 className='text-5xl min-h-12'>{checkMessage}</h1>
 
       </div>
